@@ -2,13 +2,11 @@ import { createLogger, transports, format } from 'winston';
 import { fileURLToPath } from 'url';
 import path from 'path';
 
-// Obtiene la ruta del directorio actual
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Configura el logger para guardar logs en un archivo
 const logger = createLogger({
-    level: 'error', // Nivel de logs a capturar (error, warn, info, etc.)
+    level: 'error',
     format: format.combine(
         format.timestamp(),
         format.json()

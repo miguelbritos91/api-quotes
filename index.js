@@ -11,16 +11,19 @@ app.get("/price", async (req, res) => {
   try {
     const data = await Quotes.get();
     if (data) {
+      let quote = data;
+      if (typeof quote === "string") {
+        quote = JSON.parse(quote);
+      }
       response.ok = true;
       response.msg = "Cotizacion actualizada";
-      response.response = data;
+      response.response = quote;
     }
-    res.status(200).json(response);  
+    res.status(200).json(response);
   } catch (error) {
     response.msg = error.message;
     res.status(500).json(response);
   }
-  
 });
 
 app.listen(PORT, () => {

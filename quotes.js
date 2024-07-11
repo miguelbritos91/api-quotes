@@ -1,5 +1,15 @@
 import { chromium } from "playwright";
 import { Logger } from "./logger.js";
+import { QuoteRepository } from "./quote-repository.js";
+import { TIME_CACHE } from "./config.js";
+
+
+const expireQuote = (timestampStr, dateNow) => {
+  const timestamp = new Date(timestampStr);
+  const diffMs = dateNow - timestamp;
+  const diffSeconds = Math.floor(diffMs / 1000);
+  return diffSeconds > TIME_CACHE;
+};
 
 export class Quotes {
   static async get() {
@@ -7,13 +17,18 @@ export class Quotes {
     const page = await browser.newPage();
 
     try {
-      // Navegar a la página con las cotizaciones
+      const lastQuote = await QuoteRepository.getLast();
+
+      const dateNow = new Date();
+
+      if (lastQuote && !expireQuote(lastQuote.timestamp, dateNow)) {
+        return JSON.parse(lastQuote.quote);
+      }
+
       await page.goto("https://dolarhoy.com/");
 
-      // Esperar a que cargue la sección de cotizaciones
       await page.waitForSelector(".modulo.modulo__cotizaciones");
 
-      // Extraer los datos de cada tipo de cambio y la fecha de actualización
       const data = await page.evaluate(() => {
         const blueCompra = parseFloat(
           document
@@ -86,9 +101,11 @@ export class Quotes {
           liqui: { compra: liquiCompra, venta: liquiVenta },
           cripto: { compra: criptoCompra, venta: criptoVenta },
           tarjeta: { compra: tarjetaCompra, venta: tarjetaVenta },
-          update: update.trim(), // Agregar la fecha de actualización
+          update: update.trim(),
         };
       });
+
+      QuoteRepository.create({ quotes: JSON.stringify(data), dateNow });
 
       return data;
     } catch (error) {
