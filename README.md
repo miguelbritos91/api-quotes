@@ -19,8 +19,8 @@ La información se guarda en una base de datos local y se proporciona una API pa
 1. Clona el repositorio:
 
     ```sh
-    git clone https://github.com/tu-usuario/cotizaciones-api.git
-    cd cotizaciones-api
+    git clone https://github.com/miguelbritos91/api-quotes.git
+    cd api-quotes
     ```
 
 2. Instala las dependencias:
